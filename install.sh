@@ -1,7 +1,6 @@
 #!/bin/bash
-
 #
-# Install a VLMCSD (KMS server emulator in C) service for Debian based systems
+# Install VLMCSD (KMS server emulator in C) service script for Debian based systems
 # by DniGamer
 # based on: https://teevee.asia/others/setup-your-own-kms-server-on-centos/
 #
@@ -18,30 +17,33 @@ check_result() {
 
 # CHECKS IF SCRIPT IS BEING RUN AS ROOT
 if [ "x$(id -u)" != 'x0' ]; then
-  echo 'Error: This script can only be executed by root'
+  echo 'Error: This script can only be executed by root.'
   exit 1
 fi
 
-# CHECKS IF SERVICE IS ALREADY INSTALLED
+# CHECKS IF SERVICE/vlmcsd IS ALREADY INSTALLED
 if [ -f '/etc/init.d/vlmcsd' ]; then
-  echo 'VLMCSD service has been installed.'
+  echo 'VLMCSD service had already been installed on this system.'
   exit 1
 fi
+
+# UPDATES REPOSITORIES FOR PACKAGE INSTALLATION
+apt update -y
 
 # INSTALL TAR
 if [ ! -f '/bin/tar' ]; then
-  echo 'Installing tar ...'
-  apt install -y tar
-  check_result $? "Can't install tar."
-  echo 'Install tar succeed.'
+  echo 'Installing tar...'
+  apt install tar -y
+  check_result $? "Couldn't install tar."
+  echo 'Installed tar successfully.'
 fi
 
 # INSTALL WGET
 if [ ! -f '/usr/bin/wget' ]; then
   echo 'Installing wget ...'
-  apt -y install wget
-  check_result $? "Can't install wget."
-  echo 'Install wget succeed.'
+  apt install wget -y
+  check_result $? "Couldn't install wget."
+  echo 'Installed wget successfully.'
 fi
 
 # MAKE TEMP DIR
@@ -54,7 +56,7 @@ if [ -f "binaries/vlmcsd.tar.gz" ]; then
 else 
   echo "vlmcsd.tar.gz does not exist. Downloading ..."
   wget -q https://github.com/dnigamer/vlmcsd-linux/binaries/vlmcsd.tar.gz -O vlmcsd.tar.gz
-  check_result $? 'Download vlmcsd failed.'
+  check_result $? 'Download vlmcsd binary failed.'
   cp vlmcsd.tar.gz $TMP_DIR
 fi
 
@@ -68,6 +70,7 @@ else
   cp vlmcsd-debian $TMP_DIR
 fi
 
+# CHANGE DIRECTORY TO TEMP FOLDER
 cd $TMP_DIR
 
 # EXTRACT BINARIES
@@ -77,21 +80,22 @@ cp binaries/Linux/intel/static/vlmcsd-x86-musl-static /usr/bin/vlmcsd
 cp vlmcsd-debian /etc/init.d/vlmcsd
 
 # FIX FILE PERMISSIONS
-echo 'Fixing permissions...'
+echo 'Fixing file permissions...'
 chmod 755 /usr/bin/vlmcsd
 chown root.root /usr/bin/vlmcsd
 chmod 755 /etc/init.d/vlmcsd
 chown root.root /etc/init.d/vlmcsd
+check_result $? 'Error while configuring file permissions.'
 
 # ADD SERVICE TO SYSTEMCTL
-echo 'Configuring deamon...'
+echo 'Configuring vlmcsd service...'
 systemctl daemon-reload
 systemctl enable --now vlmcsd
 systemctl start vlmcsd
-check_result $? 'Installation failed.'
+check_result $? 'Error while configuring systemctl service.'
 
 # CLEANING TEMP FOLDER
-echo 'Cleaning...'
+echo 'Cleaning temporary folder...'
 rm -rf ${TMP_DIR}
 
 echo 'vlmcsd installed successfully! Running on port 0.0.0.0:1688.'
