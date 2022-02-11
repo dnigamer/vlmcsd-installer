@@ -55,9 +55,8 @@ if [ -f "binaries/vlmcsd.tar.gz" ]; then
   cp binaries/vlmcsd.tar.gz $TMP_DIR
 else 
   echo "vlmcsd.tar.gz does not exist. Downloading ..."
-  wget -q https://github.com/dnigamer/vlmcsd-linux/binaries/vlmcsd.tar.gz -O vlmcsd.tar.gz
+  wget -q https://github.com/dnigamer/vlmcsd-installer/raw/master/binaries/vlmcsd.tar.gz -O $TMP_DIR/vlmcsd.tar.gz
   check_result $? 'Download vlmcsd binary failed.'
-  cp vlmcsd.tar.gz $TMP_DIR
 fi
 
 if [ -f "scripts/vlmcsd-debian" ]; then
@@ -65,9 +64,8 @@ if [ -f "scripts/vlmcsd-debian" ]; then
   cp scripts/vlmcsd-debian $TMP_DIR
 else 
   echo "vlmcsd-debian does not exist. Downloading ..."
-  wget -q https://github.com/dnigamer/vlmcsd-linux/scripts/vlmcsd-debian -O vlmcsd-debian
+  wget -q https://github.com/dnigamer/vlmcsd-installer/raw/master/scripts/vlmcsd-debian -O $TMP_DIR/vlmcsd-debian
   check_result $? 'Download startup script failed.'
-  cp vlmcsd-debian $TMP_DIR
 fi
 
 # CHANGE DIRECTORY TO TEMP FOLDER
